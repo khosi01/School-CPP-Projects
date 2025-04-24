@@ -1,78 +1,92 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <iomanip>
 
 using namespace std;
 
 int main()
 {
-	string name, surname;
+    string name, surname;
 
-	cout << "Please enter your name: ";
-	cin >> name;
-	cout << "Please enter your surname: ";
+    // Get customer details
+    cout << "Please enter your name: ";
+    cin >> name;
+    cout << "Please enter your surname: ";
+    cin >> surname;
 
+    // Menu items and prices
+    const vector<string> menuItems = { "Coffee", "Sandwich", "Salad", "Juice", "Muffin", "Pizza", "Soup", "Burger" };
+    const vector<double> menuPrices = { 15.00, 30.00, 25.00, 10.00, 20.00, 35.00, 18.00, 40.00 };
 
-	cout << "How many items would you like to order(up to 8)?";
-	int items;
-	cin >> items;
+    // Display menu
+    cout << "\nMenu Prices:\n";
+    for (size_t i = 0; i < menuItems.size(); ++i) {
+        cout << i + 1 << ". " << menuItems[i] << " - R" << fixed << setprecision(2) << menuPrices[i] << endl;
+    }
 
-	cout << "Menu Prices:" << endl;
-	const double COFFEE_PRICE = 15.00;
-	const double SANDWICH_PRICE = 30.00;
-	const double SALAD_PRICE = 25.00;
-	const double JUICE_PRICE = 10.00;
-	const double MUFFIN_PRICE = 20.00;
-	const double PIZZA_PRICE = 35.00;
-	const double SOUP_PRICE = 18.00;
-	const double BURGER_PRICE = 40.00;
+    // Get order details
+    int items;
+    cout << "\nHow many items would you like to order (1-8)? ";
+    cin >> items;
 
-	cout << "Coffee - R15.00" << endl;
-	cout << "Sandwich - R30.00" << endl;
-	cout << "Salad - R25.00" << endl;
-	cout << "Juice - R10.00" << endl;
-	cout << "Muffin - R20.00" << endl;
-	cout << "Pizza - R35.00" << endl;
-	cout << "Soup - R18.00" << endl;
-	cout << "Burger - R40.00" << endl;
+    if (items < 1 || items > 8) {
+        cout << "Invalid number of items. Exiting program." << endl;
+        return 1;
+    }
 
-	cout << "Select item 1(1-8): " << endl;
-	cin >> items;
-	cout << "Select item 2(1-8): " << endl;
-	cin >> items;
-	cout << "Select item 3(1-8): " << endl;
-	cin >> items;
-	cout << "Select item 4(1-8): " << endl;
-	cin >> items;
+    vector<int> selectedItems(items);
+    double totalBill = 0.0;
 
-	cout << "Total Bill: R80.00" << endl;
+    for (int i = 0; i < items; ++i) {
+        int choice;
+        cout << "Select item " << i + 1 << " (1-8): ";
+        cin >> choice;
 
-	const double DISCOUNT_RATE = 15.00; //10% discount
-	const double DISCOUNT_THRESHOLD = 100.00; //Discount applies only if bill is over R100
+        if (choice < 1 || choice > 8) {
+            cout << "Invalid choice. Exiting program." << endl;
+            return 1;
+        }
 
-	if (items > 100) {
-		cout << "No discount applied." << endl;
-	}
-	else if (items < 100) {
-		cout << "No discount applied" << endl;
-	}
-	else {
-		cout << "Final Bill: R80.00" << endl;
-	}
+        selectedItems[i] = choice - 1; // Store zero-based index
+        totalBill += menuPrices[choice - 1];
+    }
 
-	//Creating and opening a text file 
+    // Apply discount if applicable
+    const double DISCOUNT_RATE = 0.10; // 10% discount
+    const double DISCOUNT_THRESHOLD = 100.00; // Discount applies if bill > R100
+    double discount = 0.0;
 
-	ofstream CafeteriaBill("CafeteriaBill.txt");
+    if (totalBill > DISCOUNT_THRESHOLD) {
+        discount = totalBill * DISCOUNT_RATE;
+        totalBill -= discount;
+    }
 
-	//Writing the customers name, surname and final total bill in the file
+    // Display final bill
+    cout << "\nFinal Bill:\n";
+    for (int i : selectedItems) {
+        cout << menuItems[i] << " - R" << fixed << setprecision(2) << menuPrices[i] << endl;
+    }
+    if (discount > 0) {
+        cout << "Discount Applied: -R" << fixed << setprecision(2) << discount << endl;
+    }
+    cout << "Total Bill: R" << fixed << setprecision(2) << totalBill << endl;
 
-	CafeteriaBill << "Name: " << name << endl;
-	CafeteriaBill << "Surname: " << surname << endl;
-	CafeteriaBill << "Final Bill: R80.00" << endl;
+    // Write to file
+    ofstream CafeteriaBill("CafeteriaBill.txt");
+    CafeteriaBill << "Name: " << name << endl;
+    CafeteriaBill << "Surname: " << surname << endl;
+    CafeteriaBill << "Final Bill:\n";
+    for (int i : selectedItems) {
+        CafeteriaBill << menuItems[i] << " - R" << fixed << setprecision(2) << menuPrices[i] << endl;
+    }
+    if (discount > 0) {
+        CafeteriaBill << "Discount Applied: -R" << fixed << setprecision(2) << discount << endl;
+    }
+    CafeteriaBill << "Total Bill: R" << fixed << setprecision(2) << totalBill << endl;
+    CafeteriaBill.close();
 
-	//Close the file
-	CafeteriaBill.close();
+    cout << "\nThe bill has been written to CafeteriaBill.txt." << endl;
 
-	cout << "The bill has been written to CafeteriaBill.txt." << endl;
-
-	return 0;
+    return 0;
 }
