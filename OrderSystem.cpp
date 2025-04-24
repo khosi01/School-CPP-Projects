@@ -7,7 +7,7 @@ using namespace std;
 
 int main()
 {
-    string name, surname;
+    string fname, surname;
 
     // Get customer details
     cout << "Please enter your name: ";
